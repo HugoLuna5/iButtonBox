@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">iButtonBox</string>
+
+
+    <string name="login">¿Ya tienes una cuenta? Ingresar</string>
+    <string name="join">Unirse</string>
+    <string name="registrarte">Registrarte</string>
+    <string name="iniciar_sesion">Iniciar sesion</string>
+    <string name="entrar">ENTRAR</string>
+    <string name="con">Contraseña</string>
+    <string name="email">Correo electronico</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+</resources>
