@@ -8,12 +8,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.MainActivity;
+import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class IntroActivity extends AppCompatActivity {
 
@@ -25,7 +30,8 @@ public class IntroActivity extends AppCompatActivity {
     TextView login;
 
     private FirebaseAuth auth;
-
+    private FirebaseFirestore userData;
+    private String user_uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,7 @@ public class IntroActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
+        userData = FirebaseFirestore.getInstance();
         validateSession();
 
         joinBtn.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +67,33 @@ public class IntroActivity extends AppCompatActivity {
     public void validateSession(){
 
         if (auth.getCurrentUser() != null){
-            goToHome();
+            user_uid = auth.getCurrentUser().getUid();
+
+            userData.collection("Users").document(user_uid).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String typeAccount = documentSnapshot.getString("type_account");
+
+
+
+                            if (typeAccount.equals("teacher")){
+
+                                new Constants().goToNextActivity(IntroActivity.this, new TeacherHomeActivity());
+
+                            }else if(typeAccount.equals("admin")){
+                                //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+
+                            }else{
+                                new Constants().goToNextActivity(IntroActivity.this, new StudentHomeActivity());
+
+                            }
+
+
+                        }
+                    });
+
+
         }
 
     }
@@ -79,12 +112,6 @@ public class IntroActivity extends AppCompatActivity {
         finish();
     }
 
-    public void goToHome(){
-
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
 
 }

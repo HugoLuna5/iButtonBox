@@ -25,12 +25,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
-import lunainc.mx.com.ibuttonbox.model.Test;
+import lunainc.mx.com.ibuttonbox.Model.Test;
 
-import static java.security.AccessController.getContext;
-
-public class MainActivity extends AppCompatActivity  {
+public class StudentHomeActivity extends AppCompatActivity  {
 
 
     public @BindView(R.id.recyclerView)
@@ -41,18 +40,21 @@ public class MainActivity extends AppCompatActivity  {
 
 
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseFirestore userData;
     private FirebaseFirestore firestoreGroup;
     private FirebaseAuth auth;
+    private String user_uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_student_home);
 
         ButterKnife.bind(this);
 
         initVars();
         events();
+        loadDataUser();
         loadData();
 
     }
@@ -63,8 +65,10 @@ public class MainActivity extends AppCompatActivity  {
     public void initVars(){
 
         auth = FirebaseAuth.getInstance();
+        user_uid = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firestoreGroup = FirebaseFirestore.getInstance();
+        userData = FirebaseFirestore.getInstance();
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -80,7 +84,7 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(MainActivity.this, "Btn join group", Toast.LENGTH_SHORT).show();
+                Toast.makeText(StudentHomeActivity.this, "Btn join group", Toast.LENGTH_SHORT).show();
                 
                 
             }
@@ -88,6 +92,33 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
+
+    public void loadDataUser(){
+
+        userData.collection("Users").document(user_uid).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String typeAccount = documentSnapshot.getString("type_account");
+
+
+
+                           if (typeAccount.equals("teacher")){
+
+                                new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+
+                           }else if(typeAccount.equals("admin")){
+                               //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+
+                           }else{
+
+                           }
+
+
+                    }
+                });
+
+    }
 
 
     private void loadData(){
@@ -120,7 +151,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 GetTimeAgo getTimeAgo = new GetTimeAgo();
 
-                String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), MainActivity.this);
+                String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), StudentHomeActivity.this);
 
                 if (lastSeenTime != null) {
                     holder.time.setText(lastSeenTime);
@@ -151,6 +182,8 @@ public class MainActivity extends AppCompatActivity  {
 
 
     }
+
+
 
 
 }

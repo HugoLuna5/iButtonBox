@@ -1,4 +1,4 @@
-package lunainc.mx.com.ibuttonbox.model;
+package lunainc.mx.com.ibuttonbox.Model;
 
 public class User {
 

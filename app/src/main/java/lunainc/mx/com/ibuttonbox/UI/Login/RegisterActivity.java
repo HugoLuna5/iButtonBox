@@ -10,11 +10,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.victor.loading.newton.NewtonCradleLoading;
@@ -25,7 +23,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.MainActivity;
+import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -115,10 +113,9 @@ public class RegisterActivity extends AppCompatActivity {
                         public void onSuccess(AuthResult authResult) {
 
 
-                            String key = firebaseFirestore.collection("Users").document().getId();
 
                             Map<String, Object> user = new HashMap<>();
-                            user.put("uid", key);
+                            user.put("uid", authResult.getUser().getUid());
                             user.put("name",name);
                             user.put("apellidoP", apellidoP);
                             user.put("apellidoM", apellidoM);
@@ -131,7 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                             user.put("created_at", System.currentTimeMillis());
 
 
-                            firebaseFirestore.collection("Users").document(key).set(user)
+                            firebaseFirestore.collection("Users").document(authResult.getUser().getUid()).set(user)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -143,7 +140,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             loading.setVisibility(View.INVISIBLE);
                                             loading.stop();
                                         }
-                                    });
+                            });
 
 
 
@@ -176,7 +173,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     public void goToHome(){
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, StudentHomeActivity.class);
         startActivity(intent);
         finish();
     }

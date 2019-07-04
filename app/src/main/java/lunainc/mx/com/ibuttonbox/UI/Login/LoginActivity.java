@@ -18,7 +18,7 @@ import com.victor.loading.newton.NewtonCradleLoading;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.MainActivity;
+import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void goToHome(){
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, StudentHomeActivity.class);
         startActivity(intent);
         finish();
 
