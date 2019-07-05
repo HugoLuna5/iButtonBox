@@ -1,19 +1,53 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
+import lunainc.mx.com.ibuttonbox.Model.Group;
+import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
 public class GruposFragment extends Fragment {
 
 
 
     private View view;
+    public @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    public @BindView(R.id.btnAction)
+    FloatingActionButton btnAction;
+
+
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseFirestore firestoreGroup;
+
+    private FirebaseAuth auth;
+    private String uid_user;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,9 +59,82 @@ public class GruposFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment, container, false);
 
+        ButterKnife.bind(this, view);
+
+        initVars();
+        loadData();
 
 
         return view;
     }
+
+
+    public void initVars(){
+
+        auth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firestoreGroup = FirebaseFirestore.getInstance();
+        uid_user = auth.getCurrentUser().getUid();
+
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+
+    public void loadData(){
+        Query query = firebaseFirestore.collection("Groups").whereEqualTo("uid_creator", uid_user).orderBy("created_at", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<Group> recyclerOptions = new FirestoreRecyclerOptions.Builder<Group>().
+                setQuery(query, Group.class)
+                .build();
+
+        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Group, TestHolder>(recyclerOptions) {
+            @Override
+            protected void onBindViewHolder(final TestHolder holder, int i, Group group) {
+
+
+                holder.name.setText(group.getName());
+                holder.groupName.setText(group.getDesc());
+                String color = "#"+group.getColor();
+                Log.e("Color", color);
+                holder.statusView.setBackgroundColor(Color.parseColor(color));
+
+
+
+                GetTimeAgo getTimeAgo = new GetTimeAgo();
+
+                String lastSeenTime = getTimeAgo.getTimeAgo(group.getCreated_at(), getActivity());
+
+                if (lastSeenTime != null) {
+                    holder.time.setText(lastSeenTime);
+                } else {
+                    holder.time.setText("Hace un momento ");
+                }
+
+
+
+
+            }
+
+            @NonNull
+            @Override
+            public TestHolder onCreateViewHolder(ViewGroup group, int i) {
+                View view = LayoutInflater.from(group.getContext())
+                        .inflate(R.layout.item, group, false);
+
+                return new TestHolder(view);
+            }
+        };
+
+
+        adapter.startListening();
+        adapter.notifyDataSetChanged();
+        recyclerView.setAdapter(adapter);
+
+
+    }
+
 
 }

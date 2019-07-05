@@ -64,9 +64,9 @@ public class IntroActivity extends AppCompatActivity {
     }
 
 
-    public void validateSession(){
+    public void validateSession() {
 
-        if (auth.getCurrentUser() != null){
+        if (auth.getCurrentUser() != null) {
             user_uid = auth.getCurrentUser().getUid();
 
             userData.collection("Users").document(user_uid).get()
@@ -76,15 +76,14 @@ public class IntroActivity extends AppCompatActivity {
                             String typeAccount = documentSnapshot.getString("type_account");
 
 
-
-                            if (typeAccount.equals("teacher")){
+                            if (typeAccount.equals("teacher")) {
 
                                 new Constants().goToNextActivity(IntroActivity.this, new TeacherHomeActivity());
 
-                            }else if(typeAccount.equals("admin")){
+                            } else if (typeAccount.equals("admin")) {
                                 //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
 
-                            }else{
+                            } else {
                                 new Constants().goToNextActivity(IntroActivity.this, new StudentHomeActivity());
 
                             }
@@ -99,19 +98,18 @@ public class IntroActivity extends AppCompatActivity {
     }
 
 
-    public void goToRegister(){
+    public void goToRegister() {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
         finish();
     }
 
 
-    public void goToLogin(){
+    public void goToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
     }
-
 
 
 }
