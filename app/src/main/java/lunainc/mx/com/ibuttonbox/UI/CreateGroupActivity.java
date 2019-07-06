@@ -113,6 +113,7 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
                     group.put("name", name);
                     group.put("status", true);
                     group.put("uid", key);
+                    group.put("code", key.substring(0,6));
                     group.put("uid_creator", uid_user);
 
 

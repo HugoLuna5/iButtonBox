@@ -9,20 +9,21 @@ public class Group {
     private String uid_creator;
     private long created_at;
     private String color;
+    private String code;
     private boolean status;
 
 
     public Group() {
     }
 
-
-    public Group(String uid, String name, String desc, String uid_creator, long created_at, String color, boolean status) {
+    public Group(String uid, String name, String desc, String uid_creator, long created_at, String color, String code, boolean status) {
         this.uid = uid;
         this.name = name;
         this.desc = desc;
         this.uid_creator = uid_creator;
         this.created_at = created_at;
         this.color = color;
+        this.code = code;
         this.status = status;
     }
 
@@ -72,6 +73,14 @@ public class Group {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public boolean isStatus() {
