@@ -4,15 +4,125 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".UI.CreateGroupActivity">
+    <include
+        layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
 
 
-    <com.thebluealliance.spectrum.SpectrumPalette
-        android:id="@+id/palette"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:spectrum_autoPadding="true"
-        app:spectrum_outlineWidth="2dp"
-        app:spectrum_colors="@array/demo_colors" />
+        android:layout_below="@id/toolbar">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/containerdata"
+                android:orientation="vertical"
+                >
+
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/LoginTextInputLayoutStyle"
+                    android:layout_width="match_parent"
+                    android:layout_margin="20dp"
+                    android:layout_height="65dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:padding="2dp"
+                        android:id="@+id/nameGroup"
+                        android:hint="Nombre del grupo"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/LoginTextInputLayoutStyle"
+                    android:layout_width="match_parent"
+                    android:layout_margin="20dp"
+                    android:layout_height="65dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:id="@+id/descGroup"
+                        android:padding="2dp"
+                        android:hint="Descripción del grupo"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_below="@id/containerdata"
+                android:id="@+id/text"
+                android:text="Elige un color para el grupo"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:textSize="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+            <com.thebluealliance.spectrum.SpectrumPalette
+                android:layout_below="@id/text"
+                android:id="@+id/palette"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:spectrum_autoPadding="true"
+                app:spectrum_outlineWidth="2dp"
+                app:spectrum_colors="@array/demo_colors" />
+
+
+
+
+           <LinearLayout
+               android:layout_below="@id/palette"
+               android:gravity="center"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="6dp"
+               android:orientation="vertical">
+
+
+               <Button
+                   style="@style/ButonCreateGroup"
+                   android:id="@+id/btnAction"
+                   android:text="Crear"
+                   android:layout_height="60dp"
+                   android:padding="10dp"
+                   android:layout_width="160dp"
+                   app:icon="@drawable/ic_done_black_24dp"
+                />
+
+
+
+           </LinearLayout>
+
+
+
+        </RelativeLayout>
+
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
 
 </RelativeLayout>

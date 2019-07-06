@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.PerfilActivity">
+
+    
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        app:title="Perfil"
+        android:id="@+id/toolbar"
+        app:titleTextColor="@color/white"/>
+    
+    <androidx.core.widget.NestedScrollView
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <LinearLayout
+                android:id="@+id/containerImage"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_height="130dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:id="@+id/image"
+                    android:src="@drawable/user_default"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_below="@id/containerImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/nameUser"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre completo del usuario"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="19dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/emailUser"
+                    android:text="Correo electronico"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:textSize="16dp"/>
+
+
+
+                <LinearLayout
+                    android:layout_below="@id/palette"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:orientation="vertical">
+
+
+                    <Button
+                        style="@style/ButonClose"
+                        android:id="@+id/btnActionClose"
+                        android:text="Cerrar sesion"
+                        android:layout_height="60dp"
+                        android:padding="10dp"
+                        android:layout_width="170dp"
+                        app:icon="@drawable/ic_close"
+                        />
+
+
+
+                </LinearLayout>
+
+
+
+
+            </LinearLayout>
+
+
+
+
+
+
+
+
+
+        </RelativeLayout>
+
+
+
+    </androidx.core.widget.NestedScrollView>
+    
+    
+    
+    
+</RelativeLayout>

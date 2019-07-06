@@ -2,6 +2,7 @@ package lunainc.mx.com.ibuttonbox.UI;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import com.google.firebase.firestore.Query;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
@@ -37,7 +39,11 @@ public class StudentHomeActivity extends AppCompatActivity  {
     
     public @BindView(R.id.btnJoinGroup)
     FloatingActionButton btnJoinGroup;
+    public @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
+    public @BindView(R.id.imageToolbar)
+    CircleImageView imageToolbar;
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseFirestore userData;
@@ -70,8 +76,14 @@ public class StudentHomeActivity extends AppCompatActivity  {
         firestoreGroup = FirebaseFirestore.getInstance();
         userData = FirebaseFirestore.getInstance();
 
+        setSupportActionBar(toolbar);
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.findFirstVisibleItemPosition();
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
     }
@@ -89,6 +101,14 @@ public class StudentHomeActivity extends AppCompatActivity  {
                 
             }
         });
+
+        imageToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Constants().goToNextActivity(StudentHomeActivity.this, new PerfilActivity());
+            }
+        });
+
     }
 
 
@@ -124,7 +144,7 @@ public class StudentHomeActivity extends AppCompatActivity  {
     private void loadData(){
 
 
-        Query query = firebaseFirestore.collection("Test").orderBy("time", Query.Direction.DESCENDING);
+        Query query = firebaseFirestore.collection("Test");
 
 
         FirestoreRecyclerOptions<Test> recyclerOptions = new FirestoreRecyclerOptions.Builder<Test>().

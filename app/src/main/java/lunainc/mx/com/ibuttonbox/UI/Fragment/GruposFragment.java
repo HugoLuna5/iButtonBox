@@ -29,6 +29,7 @@ import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Group;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.UI.CreateGroupActivity;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
 public class GruposFragment extends Fragment {
@@ -63,6 +64,7 @@ public class GruposFragment extends Fragment {
 
         initVars();
         loadData();
+        events();
 
 
         return view;
@@ -77,14 +79,32 @@ public class GruposFragment extends Fragment {
         uid_user = auth.getCurrentUser().getUid();
 
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.findFirstVisibleItemPosition();
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    public void events(){
+
+        btnAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CreateGroupActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
+
+    }
+
+
+
 
     public void loadData(){
-        Query query = firebaseFirestore.collection("Groups").whereEqualTo("uid_creator", uid_user).orderBy("created_at", Query.Direction.DESCENDING);
+        Query query = firebaseFirestore.collection("Groups").whereEqualTo("uid_creator", uid_user);
 
         FirestoreRecyclerOptions<Group> recyclerOptions = new FirestoreRecyclerOptions.Builder<Group>().
                 setQuery(query, Group.class)
@@ -118,7 +138,7 @@ public class GruposFragment extends Fragment {
 
             }
 
-            @NonNull
+
             @Override
             public TestHolder onCreateViewHolder(ViewGroup group, int i) {
                 View view = LayoutInflater.from(group.getContext())

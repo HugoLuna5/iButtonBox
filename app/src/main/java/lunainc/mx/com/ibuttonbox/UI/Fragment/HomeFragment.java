@@ -58,7 +58,7 @@ public class HomeFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         initVars();
-        loadData();
+
 
         return view;
     }
@@ -72,13 +72,22 @@ public class HomeFragment extends Fragment {
 
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.findFirstVisibleItemPosition();
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadData();
+    }
 
     public void loadData(){
-        Query query = firebaseFirestore.collection("Test").whereEqualTo("uid_creator", uid_user).orderBy("time", Query.Direction.DESCENDING);
+        Query query = firebaseFirestore.collection("Test").whereEqualTo("uid_creator", uid_user);
 
         FirestoreRecyclerOptions<Test> recyclerOptions = new FirestoreRecyclerOptions.Builder<Test>().
                 setQuery(query, Test.class)
