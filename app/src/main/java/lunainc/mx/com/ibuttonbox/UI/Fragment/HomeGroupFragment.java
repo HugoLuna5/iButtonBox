@@ -1,6 +1,8 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +28,11 @@ import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
-public class HomeFragment extends Fragment {
+public class HomeGroupFragment extends Fragment {
 
 
     private View view;
@@ -45,6 +49,18 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth auth;
     private String uid_user;
 
+    public static HomeGroupFragment newInstance(String parameter) {
+
+        Bundle args = new Bundle();
+        args.putString("parameter", parameter);
+        HomeGroupFragment fragment = new HomeGroupFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,19 +73,19 @@ public class HomeFragment extends Fragment {
 
         ButterKnife.bind(this, view);
 
+
         initVars();
-
-
+        checkDataUser();
+        loadData();
         return view;
     }
 
-    public void initVars(){
 
+    public void initVars(){
         auth = FirebaseAuth.getInstance();
+        uid_user = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firestoreGroup = FirebaseFirestore.getInstance();
-        uid_user = auth.getCurrentUser().getUid();
-
 
         LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
         //linearLayoutManager.setReverseLayout(true);
@@ -79,15 +95,41 @@ public class HomeFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadData();
+
+
+    public void checkDataUser(){
+
+
+        firebaseFirestore.collection("Users").document(uid_user)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                String typeAccount = documentSnapshot.getString("type_account");
+
+
+
+                if (typeAccount.equals("teacher")){
+
+                    btnAction.setColorFilter(Color.parseColor("#FFFFFF"));
+
+                }else if(typeAccount.equals("admin")){
+                    //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+
+                }else{
+                    btnAction.setVisibility(View.GONE);
+                }
+
+            }
+        });
     }
 
+
     public void loadData(){
-        Query query = firebaseFirestore.collection("Test").whereEqualTo("uid_creator", uid_user)
-                .orderBy("time", Query.Direction.DESCENDING).limit(50);
+
+        String data = getArguments().getString("parameter");
+        Query query = firebaseFirestore.collection("Test").whereEqualTo("uid_group", data)
+                .orderBy("time", Query.Direction.DESCENDING);
 
         FirestoreRecyclerOptions<Test> recyclerOptions = new FirestoreRecyclerOptions.Builder<Test>().
                 setQuery(query, Test.class)

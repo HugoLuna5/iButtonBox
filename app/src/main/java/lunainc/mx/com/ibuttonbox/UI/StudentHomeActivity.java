@@ -6,25 +6,41 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.sdsmdg.tastytoast.TastyToast;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import lunainc.mx.com.ibuttonbox.Adapter.MyPagerAdapter;
+import lunainc.mx.com.ibuttonbox.Adapter.StudenPagerAdapter;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
@@ -34,13 +50,15 @@ import lunainc.mx.com.ibuttonbox.Model.Test;
 public class StudentHomeActivity extends AppCompatActivity  {
 
 
-    public @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
+
     
-    public @BindView(R.id.btnJoinGroup)
-    FloatingActionButton btnJoinGroup;
+
     public @BindView(R.id.toolbar)
     Toolbar toolbar;
+    public @BindView(R.id.pager)
+    ViewPager viewPager;
+    public @BindView(R.id.tabLayout)
+    TabLayout tabLayout;
 
     public @BindView(R.id.imageToolbar)
     CircleImageView imageToolbar;
@@ -61,7 +79,6 @@ public class StudentHomeActivity extends AppCompatActivity  {
         initVars();
         events();
         loadDataUser();
-        loadData();
 
     }
 
@@ -77,30 +94,18 @@ public class StudentHomeActivity extends AppCompatActivity  {
         userData = FirebaseFirestore.getInstance();
 
         setSupportActionBar(toolbar);
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
+        tabLayout.setTabTextColors(Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF"));
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(this);
-        linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
-        linearLayoutManager.findFirstVisibleItemPosition();
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        StudenPagerAdapter myPagerAdapter = new StudenPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(myPagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
 
     }
 
 
 
     private void events() {
-        
-        btnJoinGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(StudentHomeActivity.this, "Btn join group", Toast.LENGTH_SHORT).show();
-                
-                
-            }
-        });
 
         imageToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,67 +146,6 @@ public class StudentHomeActivity extends AppCompatActivity  {
     }
 
 
-    private void loadData(){
-
-
-        Query query = firebaseFirestore.collection("Test");
-
-
-        FirestoreRecyclerOptions<Test> recyclerOptions = new FirestoreRecyclerOptions.Builder<Test>().
-                setQuery(query, Test.class)
-                .build();
-
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Test, TestHolder>(recyclerOptions) {
-            @Override
-            protected void onBindViewHolder(final TestHolder holder, int i, Test test) {
-
-
-                holder.name.setText(test.getTitle());
-
-                firestoreGroup.collection("Groups").document(test.getUid_group())
-                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-
-                        holder.groupName.setText(documentSnapshot.get("name").toString());
-
-                    }
-                });
-
-                GetTimeAgo getTimeAgo = new GetTimeAgo();
-
-                String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), StudentHomeActivity.this);
-
-                if (lastSeenTime != null) {
-                    holder.time.setText(lastSeenTime);
-                } else {
-                    holder.time.setText("Hace un momento ");
-                }
-
-
-
-
-
-            }
-
-            @NonNull
-            @Override
-            public TestHolder onCreateViewHolder(ViewGroup group, int i) {
-                View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.item, group, false);
-
-                return new TestHolder(view);
-            }
-        };
-
-
-        adapter.startListening();
-        adapter.notifyDataSetChanged();
-        recyclerView.setAdapter(adapter);
-
-
-    }
 
 
 

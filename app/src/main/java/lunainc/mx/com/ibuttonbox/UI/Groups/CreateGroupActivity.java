@@ -1,11 +1,10 @@
-package lunainc.mx.com.ibuttonbox.UI;
+package lunainc.mx.com.ibuttonbox.UI.Groups;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +23,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
+import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class CreateGroupActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener {
@@ -80,7 +81,7 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
-            actionBar.setTitle("PUBLICAR");
+            actionBar.setTitle("Crear grupo");
         }
 
         palette.setOnColorSelectedListener(this);
@@ -122,7 +123,7 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     mProgrees.dismiss();
-                                    new Constants().goToNextActivity(CreateGroupActivity.this, new TeacherHomeActivity());
+                                    goTo();
                                 }
                             });
 
@@ -152,7 +153,7 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
 
         if (id == android.R.id.home) {
             // handle close button click here
-            finish();
+            goTo();
 
             return true;
         }
@@ -163,6 +164,11 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
+      goTo();
+    }
+
+
+    public void goTo(){
+        new Constants().goToNextActivity(CreateGroupActivity.this, new TeacherHomeActivity());
     }
 }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,14 +23,14 @@ import com.google.firebase.firestore.Query;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Holder.MemberHolder;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
+import lunainc.mx.com.ibuttonbox.Model.Member;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
-public class HomeFragment extends Fragment {
-
+public class MiembrosFragment extends Fragment {
 
     private View view;
     public @BindView(R.id.recyclerView)
@@ -40,14 +41,22 @@ public class HomeFragment extends Fragment {
 
 
     private FirebaseFirestore firebaseFirestore;
-    private FirebaseFirestore firestoreGroup;
-
     private FirebaseAuth auth;
     private String uid_user;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+
+    public static MiembrosFragment newInstance(String parameter) {
+
+        Bundle args = new Bundle();
+        args.putString("parameter", parameter);
+        MiembrosFragment fragment = new MiembrosFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
 
@@ -58,69 +67,60 @@ public class HomeFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         initVars();
-
+        loadData();
 
         return view;
     }
 
-    public void initVars(){
+
+    public void initVars() {
 
         auth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        firestoreGroup = FirebaseFirestore.getInstance();
         uid_user = auth.getCurrentUser().getUid();
-
-
-        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         //linearLayoutManager.setReverseLayout(true);
         //linearLayoutManager.setStackFromEnd(true);
         //linearLayoutManager.findFirstVisibleItemPosition();
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        btnAction.setVisibility(View.GONE);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadData();
-    }
 
-    public void loadData(){
-        Query query = firebaseFirestore.collection("Test").whereEqualTo("uid_creator", uid_user)
-                .orderBy("time", Query.Direction.DESCENDING).limit(50);
+    public void loadData() {
+        String data = getArguments().getString("parameter");
 
-        FirestoreRecyclerOptions<Test> recyclerOptions = new FirestoreRecyclerOptions.Builder<Test>().
-                setQuery(query, Test.class)
+        Query query = firebaseFirestore.collection("Members").whereEqualTo("uid_group", data)
+                .orderBy("join_at", Query.Direction.DESCENDING);
+
+
+        FirestoreRecyclerOptions<Member> recyclerOptions = new FirestoreRecyclerOptions.Builder<Member>().
+                setQuery(query, Member.class)
                 .build();
 
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Test, TestHolder>(recyclerOptions) {
+
+        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Member, MemberHolder>(recyclerOptions) {
             @Override
-            protected void onBindViewHolder(final TestHolder holder, int i, Test test) {
+            protected void onBindViewHolder(final MemberHolder holder, int i, Member member) {
 
 
-                holder.statusView.setBackgroundColor(getResources().getColor(R.color.blue));
-                holder.name.setText(test.getTitle());
-
-                firestoreGroup.collection("Groups").document(test.getUid_group())
+                firebaseFirestore.collection("Users").document(member.getUid_user())
                         .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String fullName = documentSnapshot.getString("name") + " " +documentSnapshot.getString("apellidoP") +" "+documentSnapshot.getString("apellidoM");
+                        holder.name.setText(fullName);
 
+                        String image = documentSnapshot.getString("image");
 
-                        holder.groupName.setText(documentSnapshot.get("name").toString());
+                        if (!image.equals("default")){
+                            Glide.with(getActivity()).load(image).into(holder.image);
+                        }
+
 
                     }
                 });
-
-                GetTimeAgo getTimeAgo = new GetTimeAgo();
-
-                String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), getActivity());
-
-                if (lastSeenTime != null) {
-                    holder.time.setText(lastSeenTime);
-                } else {
-                    holder.time.setText("Hace un momento ");
-                }
 
 
 
@@ -128,13 +128,12 @@ public class HomeFragment extends Fragment {
 
             }
 
-            @NonNull
             @Override
-            public TestHolder onCreateViewHolder(ViewGroup group, int i) {
+            public MemberHolder onCreateViewHolder(ViewGroup group, int i) {
                 View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.item, group, false);
+                        .inflate(R.layout.item_members, group, false);
 
-                return new TestHolder(view);
+                return new MemberHolder(view);
             }
         };
 

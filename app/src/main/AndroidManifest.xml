@@ -13,8 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".UI.PerfilActivity"></activity>
-        <activity android:name=".UI.CreateGroupActivity" />
+        <activity android:name=".UI.Groups.GroupActivity"/>
+        <activity android:name=".UI.PerfilActivity" />
+        <activity android:name=".UI.Groups.CreateGroupActivity" />
         <activity
             android:name=".UI.TeacherHomeActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -38,7 +39,7 @@
         </activity>
         <activity
             android:name=".UI.StudentHomeActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            />
     </application>
 
 </manifest>
