@@ -1,9 +1,10 @@
-package lunainc.mx.com.ibuttonbox.UI.Fragment;
+package lunainc.mx.com.ibuttonbox.UI.Fragment.Teacher;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -25,10 +26,11 @@ import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.CreateTestActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
-public class HomeFragment extends Fragment {
+public class HomeTeacherFragment extends Fragment {
 
 
     private View view;
@@ -58,7 +60,7 @@ public class HomeFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         initVars();
-
+        events();
 
         return view;
     }
@@ -77,6 +79,17 @@ public class HomeFragment extends Fragment {
         //linearLayoutManager.findFirstVisibleItemPosition();
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+
+    public void events(){
+        btnAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity(), "Crear nuevo test", Toast.LENGTH_SHORT).show();
+                new Constants().goToNextActivity(getActivity(), new CreateTestActivity());
+            }
+        });
     }
 
     @Override

@@ -150,31 +150,6 @@
 
 
 
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:textColorHint="@color/white">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/calibri"
-                        android:hint="No. Control"
-                        android:id="@+id/numControl"
-                        android:inputType="text"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/white"
-                        android:textSize="18sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-
-
-
-
-
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,5 +1,8 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment;
 
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,11 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -31,11 +37,20 @@ public class AjustesGrupoFragment extends Fragment {
     public @BindView(R.id.btnActionExit)
     Button btnActionExit;
 
+    public @BindView(R.id.btnActionCloseGroup)
+    Button btnActionCloseGroup;
+
+    public @BindView(R.id.codeGroup)
+    TextView codeGroup;
+
     private View view;
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth auth;
     private String uid_user;
+    private SharedPreferences sharedPref;
+
+
 
     public static AjustesGrupoFragment newInstance(String parameter) {
 
@@ -46,6 +61,10 @@ public class AjustesGrupoFragment extends Fragment {
         return fragment;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,6 +74,7 @@ public class AjustesGrupoFragment extends Fragment {
 
         initVars();
         checkDataUser();
+        setCodeGroup();
         events();
 
 
@@ -65,37 +85,59 @@ public class AjustesGrupoFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         uid_user = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        Context context = getContext().getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
 
     }
 
     public void checkDataUser(){
 
-        firebaseFirestore.collection("Users").document(uid_user)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String typeAccount = documentSnapshot.getString("type_account");
 
+        String typeAccount = sharedPref.getString(("type_account"), "noLogged");
 
+        if (!typeAccount.equals("noLogged")){
 
-                if (typeAccount.equals("teacher")){
+            if (typeAccount.equals("teacher")){
 
-                   student.setVisibility(View.GONE);
-                   teacher.setVisibility(View.VISIBLE);
+                student.setVisibility(View.GONE);
+                teacher.setVisibility(View.VISIBLE);
 
-                }else if(typeAccount.equals("admin")){
-                    //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+            }else if(typeAccount.equals("admin")){
+                //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
 
-                }else{
-                    teacher.setVisibility(View.GONE);
-                    student.setVisibility(View.VISIBLE);
-                }
+            }else{
+                teacher.setVisibility(View.GONE);
+                student.setVisibility(View.VISIBLE);
             }
-        });
 
+        }
 
     }
 
+
+    public void setCodeGroup(){
+        String data = getArguments().getString("parameter");
+
+         firebaseFirestore.collection("Groups").document(data)
+                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+             @Override
+             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                 if (documentSnapshot.exists()){
+                     String code = documentSnapshot.getString("code");
+                     codeGroup.setText("Codigo del grupo: "+code);
+                     codeGroup.setOnClickListener(new View.OnClickListener() {
+                         @Override
+                         public void onClick(View view) {
+                             ClipboardManager cm = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                             cm.setText(code);
+                             Toast.makeText(getActivity(), "Codigo copiado al portapapeles", Toast.LENGTH_SHORT).show();
+                         }
+                     });
+                 }
+             }
+         });
+    }
 
     public void events(){
 
@@ -131,6 +173,12 @@ public class AjustesGrupoFragment extends Fragment {
             }
         });
 
+        btnActionCloseGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
     }
 

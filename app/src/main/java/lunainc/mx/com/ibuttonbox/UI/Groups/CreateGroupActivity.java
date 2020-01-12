@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
-import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class CreateGroupActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener {

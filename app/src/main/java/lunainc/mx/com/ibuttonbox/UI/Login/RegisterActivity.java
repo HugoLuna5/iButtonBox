@@ -2,7 +2,9 @@ package lunainc.mx.com.ibuttonbox.UI.Login;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +25,8 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -43,8 +46,6 @@ public class RegisterActivity extends AppCompatActivity {
     public @BindView(R.id.email)
     TextInputEditText emailField;
 
-    public @BindView(R.id.numControl)
-    TextInputEditText numControlField;
 
     public @BindView(R.id.password)
     TextInputEditText passwordField;
@@ -62,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private FirebaseFirestore firebaseFirestore;
-
+    private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +71,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-
-
+        Context context = this.getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
         auth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
@@ -94,7 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
                 String apellidoP = apellidoPField.getText().toString();
                 String apellidoM = apellidoMField.getText().toString();
                 String email = emailField.getText().toString();
-                String numControl = numControlField.getText().toString();
                 String password = passwordField.getText().toString();
                 String confirmPassword = confirmPassField.getText().toString();
 
@@ -103,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                  * Validar que los datos no esten vacios
                  * y que las contraseñas coincidan
                  */
-                if ( (!name.isEmpty() && !apellidoP.isEmpty() && !apellidoM.isEmpty() && !email.isEmpty() && !numControl.isEmpty()
+                if ( (!name.isEmpty() && !apellidoP.isEmpty() && !apellidoM.isEmpty() && !email.isEmpty()
                         && !password.isEmpty() && !confirmPassword.isEmpty()) && password.equals(confirmPassword) ){
 
 
@@ -112,15 +113,13 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(AuthResult authResult) {
 
-
-
                             Map<String, Object> user = new HashMap<>();
                             user.put("uid", authResult.getUser().getUid());
                             user.put("name",name);
                             user.put("apellidoP", apellidoP);
                             user.put("apellidoM", apellidoM);
                             user.put("email", email);
-                            user.put("numControl", numControl);
+                            //user.put("numControl", numControl);
                             user.put("image", "default");
                             user.put("type_account", "student");
                             user.put("thumb_image", "default");
@@ -133,10 +132,13 @@ public class RegisterActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
 
-
                                             TastyToast.makeText(getApplicationContext(), "¡Se ha creado tu cuenta con exito!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-
-                                            goToHome();
+                                            SharedPreferences.Editor editor = sharedPref.edit();
+                                            editor.putString("type_account", "student");
+                                            editor.putString("email", email);
+                                            editor.putString("user_uid", authResult.getUser().getUid());
+                                            editor.apply();
+                                            new Constants().checkAndGoTo(RegisterActivity.this, "student");
                                             loading.setVisibility(View.INVISIBLE);
                                             loading.stop();
                                         }
@@ -167,16 +169,10 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        //super.onBackPressed();
         goToIntro();
     }
 
-
-    public void goToHome(){
-        Intent intent = new Intent(this, StudentHomeActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
     public void goToIntro(){
 

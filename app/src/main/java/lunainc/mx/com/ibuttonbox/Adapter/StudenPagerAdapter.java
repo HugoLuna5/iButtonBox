@@ -4,10 +4,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import lunainc.mx.com.ibuttonbox.UI.Fragment.GroupsStudentFragment;
-import lunainc.mx.com.ibuttonbox.UI.Fragment.GruposFragment;
-import lunainc.mx.com.ibuttonbox.UI.Fragment.HomeFragment;
-import lunainc.mx.com.ibuttonbox.UI.Fragment.HomeStudentFragment;
+import lunainc.mx.com.ibuttonbox.UI.Fragment.Student.GroupsStudentFragment;
+import lunainc.mx.com.ibuttonbox.UI.Fragment.Student.HomeStudentFragment;
 
 public class StudenPagerAdapter extends FragmentPagerAdapter {
 

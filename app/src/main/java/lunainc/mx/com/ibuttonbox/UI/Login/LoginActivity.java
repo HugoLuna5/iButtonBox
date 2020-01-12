@@ -2,23 +2,30 @@ package lunainc.mx.com.ibuttonbox.UI.Login;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.victor.loading.newton.NewtonCradleLoading;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,8 +47,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private FirebaseAuth auth;
-
-
+    private FirebaseFirestore userData;
+    private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +57,12 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
+        Context context = this.getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
 
         auth = FirebaseAuth.getInstance();
+        userData = FirebaseFirestore.getInstance();
         loading.setVisibility(View.INVISIBLE);
 
 
@@ -75,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                             TastyToast.makeText(getApplicationContext(), "¡Bienvenido!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                             loading.setVisibility(View.INVISIBLE);
                             loading.stop();
-                            goToHome();
+                            getData(authResult.getUser().getUid());
 
                         }
                     });
@@ -114,12 +125,24 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    public void goToHome(){
 
-        Intent intent = new Intent(this, StudentHomeActivity.class);
-        startActivity(intent);
-        finish();
+    public void getData(String user_uid){
+        userData.collection("Users").document(user_uid).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String typeAccount = documentSnapshot.getString("type_account");
+                        String email = documentSnapshot.getString("email");
 
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("type_account", typeAccount);
+                        editor.putString("email", email);
+                        editor.putString("user_uid", user_uid);
+                        editor.apply();
+                        new Constants().checkAndGoTo(LoginActivity.this, typeAccount);
+
+                    }
+                });
     }
 
     public void goToIntro(){

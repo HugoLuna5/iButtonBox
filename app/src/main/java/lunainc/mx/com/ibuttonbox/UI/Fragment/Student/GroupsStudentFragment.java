@@ -1,4 +1,4 @@
-package lunainc.mx.com.ibuttonbox.UI.Fragment;
+package lunainc.mx.com.ibuttonbox.UI.Fragment.Student;
 
 import android.content.Intent;
 import android.graphics.Color;

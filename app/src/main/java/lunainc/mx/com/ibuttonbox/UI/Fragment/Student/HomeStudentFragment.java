@@ -1,4 +1,4 @@
-package lunainc.mx.com.ibuttonbox.UI.Fragment;
+package lunainc.mx.com.ibuttonbox.UI.Fragment.Student;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -11,7 +11,6 @@ import android.view.Window;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,13 +33,9 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
-import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
 public class HomeStudentFragment extends Fragment {

@@ -1,8 +1,10 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,9 +29,8 @@ import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
-import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
-import lunainc.mx.com.ibuttonbox.Utils.Constants;
+import lunainc.mx.com.ibuttonbox.UI.Groups.GroupActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.CreateTestActivity;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
 public class HomeGroupFragment extends Fragment {
@@ -45,7 +46,7 @@ public class HomeGroupFragment extends Fragment {
 
     private FirebaseFirestore firebaseFirestore;
     private FirebaseFirestore firestoreGroup;
-
+    private SharedPreferences sharedPref;
     private FirebaseAuth auth;
     private String uid_user;
 
@@ -86,7 +87,9 @@ public class HomeGroupFragment extends Fragment {
         uid_user = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firestoreGroup = FirebaseFirestore.getInstance();
-
+        Context context = getContext().getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
         LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
         //linearLayoutManager.setReverseLayout(true);
         //linearLayoutManager.setStackFromEnd(true);
@@ -100,28 +103,31 @@ public class HomeGroupFragment extends Fragment {
     public void checkDataUser(){
 
 
-        firebaseFirestore.collection("Users").document(uid_user)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        String typeAccount = sharedPref.getString(("type_account"), "noLogged");
+
+        if (!typeAccount.equals("noLogged")){
+
+            if (typeAccount.equals("teacher")){
+
+                btnAction.setColorFilter(Color.parseColor("#FFFFFF"));
+
+            }else if(typeAccount.equals("admin")){
+                //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
+
+            }else{
+                btnAction.setVisibility(View.GONE);
+            }
+        }
+
+        btnAction.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                String typeAccount = documentSnapshot.getString("type_account");
-
-
-
-                if (typeAccount.equals("teacher")){
-
-                    btnAction.setColorFilter(Color.parseColor("#FFFFFF"));
-
-                }else if(typeAccount.equals("admin")){
-                    //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
-
-                }else{
-                    btnAction.setVisibility(View.GONE);
-                }
-
+            public void onClick(View view) {
+                //Intent intent = new Intent(getActivity(), CreateTestActivity.class);
+                //getActivity().startActivity(intent);
             }
         });
+
+
     }
 
 

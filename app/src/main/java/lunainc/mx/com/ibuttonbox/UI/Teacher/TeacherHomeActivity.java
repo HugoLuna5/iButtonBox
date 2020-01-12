@@ -1,4 +1,4 @@
-package lunainc.mx.com.ibuttonbox.UI;
+package lunainc.mx.com.ibuttonbox.UI.Teacher;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,6 +14,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.Adapter.MyPagerAdapter;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class TeacherHomeActivity extends AppCompatActivity {

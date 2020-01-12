@@ -1,4 +1,4 @@
-package lunainc.mx.com.ibuttonbox.UI.Fragment;
+package lunainc.mx.com.ibuttonbox.UI.Fragment.Teacher;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,7 +33,7 @@ import lunainc.mx.com.ibuttonbox.UI.Groups.GroupActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
-public class GruposFragment extends Fragment {
+public class GruposTeacherFragment extends Fragment {
 
 
 

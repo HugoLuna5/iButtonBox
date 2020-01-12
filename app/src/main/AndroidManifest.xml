@@ -13,11 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".UI.Groups.GroupActivity"/>
+        <activity android:name=".UI.Teacher.CreateTestActivity"
+            android:theme="@style/AppThemeCreateTest"></activity>
+        <activity android:name=".UI.Groups.GroupActivity" />
         <activity android:name=".UI.PerfilActivity" />
         <activity android:name=".UI.Groups.CreateGroupActivity" />
         <activity
-            android:name=".UI.TeacherHomeActivity"
+            android:name=".UI.Teacher.TeacherHomeActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".UI.Login.RegisterActivity"
@@ -37,9 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".UI.StudentHomeActivity"
-            />
+        <activity android:name=".UI.Student.StudentHomeActivity" />
     </application>
 
 </manifest>

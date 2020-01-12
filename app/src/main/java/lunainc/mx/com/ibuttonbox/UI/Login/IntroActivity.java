@@ -2,7 +2,9 @@ package lunainc.mx.com.ibuttonbox.UI.Login;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,8 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.R;
-import lunainc.mx.com.ibuttonbox.UI.StudentHomeActivity;
-import lunainc.mx.com.ibuttonbox.UI.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class IntroActivity extends AppCompatActivity {
@@ -32,7 +34,7 @@ public class IntroActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore userData;
     private String user_uid;
-
+    private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +43,9 @@ public class IntroActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         auth = FirebaseAuth.getInstance();
-
+        Context context = this.getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
         userData = FirebaseFirestore.getInstance();
         validateSession();
 
@@ -69,28 +73,12 @@ public class IntroActivity extends AppCompatActivity {
         if (auth.getCurrentUser() != null) {
             user_uid = auth.getCurrentUser().getUid();
 
-            userData.collection("Users").document(user_uid).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String typeAccount = documentSnapshot.getString("type_account");
 
+            String typeAcc = sharedPref.getString(("type_account"), "noLogged");
 
-                            if (typeAccount.equals("teacher")) {
-
-                                new Constants().goToNextActivity(IntroActivity.this, new TeacherHomeActivity());
-
-                            } else if (typeAccount.equals("admin")) {
-                                //new Constants().goToNextActivity(StudentHomeActivity.this, new TeacherHomeActivity());
-
-                            } else {
-                                new Constants().goToNextActivity(IntroActivity.this, new StudentHomeActivity());
-
-                            }
-
-
-                        }
-                    });
+            if (!typeAcc.equals("noLogged")){
+                new Constants().checkAndGoTo(IntroActivity.this, typeAcc);
+            }
 
 
         }

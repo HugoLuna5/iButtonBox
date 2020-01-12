@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import lunainc.mx.com.ibuttonbox.UI.Fragment.GruposFragment;
-import lunainc.mx.com.ibuttonbox.UI.Fragment.HomeFragment;
+import lunainc.mx.com.ibuttonbox.UI.Fragment.Teacher.GruposTeacherFragment;
+import lunainc.mx.com.ibuttonbox.UI.Fragment.Teacher.HomeTeacherFragment;
 
 public class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -18,9 +18,9 @@ public class MyPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new HomeFragment();
+                return new HomeTeacherFragment();
             case 1:
-                return new GruposFragment();
+                return new GruposTeacherFragment();
         }
         return null;
     }

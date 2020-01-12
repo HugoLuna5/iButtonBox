@@ -4,7 +4,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +20,8 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.Login.LoginActivity;
+import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class PerfilActivity extends AppCompatActivity {
