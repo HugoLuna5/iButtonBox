@@ -65,7 +65,6 @@ public class GroupsStudentFragment extends Fragment {
 
         initVars();
 
-        events();
 
 
         return view;
@@ -84,20 +83,10 @@ public class GroupsStudentFragment extends Fragment {
 
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        btnAction.setVisibility(View.GONE);
     }
 
-    public void events(){
 
-        btnAction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CreateGroupActivity.class);
-                startActivity(intent);
-                getActivity().finish();
-            }
-        });
-
-    }
 
 
     @Override

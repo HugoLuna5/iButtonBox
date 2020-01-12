@@ -86,12 +86,7 @@ public class HomeStudentFragment extends Fragment {
         firestoreGroup = FirebaseFirestore.getInstance();
         userData = FirebaseFirestore.getInstance();
 
-
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
-        //linearLayoutManager.setReverseLayout(true);
-        //linearLayoutManager.setStackFromEnd(true);
-        //linearLayoutManager.findFirstVisibleItemPosition();
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         btnJoinGroup.setColorFilter(Color.parseColor("#FFFFFF"));
@@ -140,28 +135,41 @@ public class HomeStudentFragment extends Fragment {
             protected void onBindViewHolder(final TestHolder holder, int i, Test test) {
 
 
-                holder.name.setText(test.getTitle());
 
-                firestoreGroup.collection("Groups").document(test.getUid_group())
-                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                firebaseFirestore.collection("Members").whereEqualTo("uid_user", user_uid)
+                        .whereEqualTo("uid_group", test.getUid_group()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
 
-                        holder.groupName.setText(documentSnapshot.get("name").toString());
+                        holder.name.setText(test.getTitle());
+
+                        firestoreGroup.collection("Groups").document(test.getUid_group())
+                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+
+                                holder.groupName.setText(documentSnapshot.get("name").toString());
+
+                            }
+                        });
+
+                        GetTimeAgo getTimeAgo = new GetTimeAgo();
+
+                        String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), getActivity());
+
+                        if (lastSeenTime != null) {
+                            holder.time.setText(lastSeenTime);
+                        } else {
+                            holder.time.setText("Hace un momento ");
+                        }
+
 
                     }
                 });
 
-                GetTimeAgo getTimeAgo = new GetTimeAgo();
-
-                String lastSeenTime = getTimeAgo.getTimeAgo(test.getTime(), getActivity());
-
-                if (lastSeenTime != null) {
-                    holder.time.setText(lastSeenTime);
-                } else {
-                    holder.time.setText("Hace un momento ");
-                }
 
 
 
@@ -232,7 +240,7 @@ public class HomeStudentFragment extends Fragment {
 
                                         int sizeVal = snapshots.size();
 
-                                        if (sizeVal <= 0){
+                                        if (sizeVal >= 0){
                                             String uid_member_group = firebaseFirestore.collection("Members").document().getId();
                                             Map<String, Object> member = new HashMap<>();
                                             member.put("uid_user", user_uid);
