@@ -22,10 +22,19 @@ import com.victor.loading.newton.NewtonCradleLoading;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Connect.APIService;
+import lunainc.mx.com.ibuttonbox.Connect.ApiUtils;
+import lunainc.mx.com.ibuttonbox.Model.ResponseDefaultLR;
+import lunainc.mx.com.ibuttonbox.Model.User;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
 import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -45,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     public @BindView(R.id.btnLogin)
     Button btnLogin;
 
-
+    private APIService mAPIService;
     private FirebaseAuth auth;
     private FirebaseFirestore userData;
     private SharedPreferences sharedPref;
@@ -60,6 +69,8 @@ public class LoginActivity extends AppCompatActivity {
         Context context = this.getApplicationContext();
         sharedPref = context.getSharedPreferences(
                 "credentials", Context.MODE_PRIVATE);
+
+        mAPIService = ApiUtils.getAPIService();
 
         auth = FirebaseAuth.getInstance();
         userData = FirebaseFirestore.getInstance();
@@ -78,15 +89,48 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (!email.isEmpty() && !password.isEmpty()){
 
+
+                    RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("email", email)
+                            .addFormDataPart("password", password)
+                            .build();
+
+
+                    mAPIService.loginUser(requestBody).enqueue(new Callback<ResponseDefaultLR>() {
+                        @Override
+                        public void onResponse(Call<ResponseDefaultLR> call, Response<ResponseDefaultLR> response) {
+                            if (response.isSuccessful()){
+
+
+                                if (response.body().getStatus().equals("success")){
+                                    TastyToast.makeText(getApplicationContext(), "¡Bienvenido!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                                    loading.setVisibility(View.INVISIBLE);
+                                    loading.stop();
+                                    getData(response.body().getToken());
+                                }else{
+                                    TastyToast.makeText(LoginActivity.this, response.body().getMessage(), TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
+                                }
+
+                            }else{
+                                TastyToast.makeText(LoginActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseDefaultLR> call, Throwable t) {
+                            TastyToast.makeText(LoginActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                        }
+                    });
+
                     auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
                         public void onSuccess(AuthResult authResult) {
 
 
-                            TastyToast.makeText(getApplicationContext(), "¡Bienvenido!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-                            loading.setVisibility(View.INVISIBLE);
-                            loading.stop();
-                            getData(authResult.getUser().getUid());
+
 
                         }
                     });
@@ -126,23 +170,42 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    public void getData(String user_uid){
-        userData.collection("Users").document(user_uid).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String typeAccount = documentSnapshot.getString("type_account");
-                        String email = documentSnapshot.getString("email");
+    public void getData(String token){
+        String completeToken = "Bearer "+token;
+        mAPIService.getDataUser("Accept", completeToken).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()){
 
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("type_account", typeAccount);
-                        editor.putString("email", email);
-                        editor.putString("user_uid", user_uid);
-                        editor.apply();
-                        new Constants().checkAndGoTo(LoginActivity.this, typeAccount);
-
+                    String type = response.body().getType_account();
+                    String typeAcc = "";
+                    if (Integer.parseInt(type) == 1){
+                        typeAcc = "student";
+                    }else {
+                        typeAcc = "teacher";
                     }
-                });
+
+                    String email = response.body().getCorreo();
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("type_account", typeAcc);
+                    editor.putString("email", email);
+                    editor.putString("token", token);
+                    editor.apply();
+
+                    new Constants().checkAndGoTo(LoginActivity.this, typeAcc);
+
+                }else{
+                    TastyToast.makeText(LoginActivity.this, response.body().getMessage(), TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+
     }
 
     public void goToIntro(){

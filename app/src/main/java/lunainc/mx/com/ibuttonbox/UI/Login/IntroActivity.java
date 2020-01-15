@@ -70,6 +70,7 @@ public class IntroActivity extends AppCompatActivity {
 
     public void validateSession() {
 
+        /*
         if (auth.getCurrentUser() != null) {
             user_uid = auth.getCurrentUser().getUid();
 
@@ -82,6 +83,7 @@ public class IntroActivity extends AppCompatActivity {
 
 
         }
+         */
 
     }
 

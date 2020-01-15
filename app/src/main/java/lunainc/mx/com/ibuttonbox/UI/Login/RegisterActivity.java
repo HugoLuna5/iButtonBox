@@ -24,9 +24,17 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Connect.APIService;
+import lunainc.mx.com.ibuttonbox.Connect.ApiUtils;
+import lunainc.mx.com.ibuttonbox.Model.ResponseDefaultLR;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -46,6 +54,8 @@ public class RegisterActivity extends AppCompatActivity {
     public @BindView(R.id.email)
     TextInputEditText emailField;
 
+    public @BindView(R.id.phone)
+    TextInputEditText phoneField;
 
     public @BindView(R.id.password)
     TextInputEditText passwordField;
@@ -64,6 +74,8 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore firebaseFirestore;
     private SharedPreferences sharedPref;
+    private APIService mAPIService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
         sharedPref = context.getSharedPreferences(
                 "credentials", Context.MODE_PRIVATE);
         auth = FirebaseAuth.getInstance();
+        mAPIService = ApiUtils.getAPIService();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
         backText.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String apellidoP = apellidoPField.getText().toString();
                 String apellidoM = apellidoMField.getText().toString();
                 String email = emailField.getText().toString();
+                String phone = phoneField.getText().toString();
                 String password = passwordField.getText().toString();
                 String confirmPassword = confirmPassField.getText().toString();
 
@@ -105,51 +119,57 @@ public class RegisterActivity extends AppCompatActivity {
                  * y que las contraseñas coincidan
                  */
                 if ( (!name.isEmpty() && !apellidoP.isEmpty() && !apellidoM.isEmpty() && !email.isEmpty()
-                        && !password.isEmpty() && !confirmPassword.isEmpty()) && password.equals(confirmPassword) ){
+                        && !password.isEmpty() && !confirmPassword.isEmpty() && !phone.isEmpty()) && password.equals(confirmPassword) ){
+
+                    RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("id_type", "1")
+                            .addFormDataPart("name", name)
+                            .addFormDataPart("last_name_p", apellidoP)
+                            .addFormDataPart("last_name_m", apellidoM)
+                            .addFormDataPart("phone", phone)
+                            .addFormDataPart("device_token", FirebaseInstanceId.getInstance().getToken())
+                            .addFormDataPart("email", email)
+                            .addFormDataPart("password", password)
+                            .build();
 
 
 
-                    auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    mAPIService.registerUser(requestBody).enqueue(new Callback<ResponseDefaultLR>() {
                         @Override
-                        public void onSuccess(AuthResult authResult) {
+                        public void onResponse(Call<ResponseDefaultLR> call, Response<ResponseDefaultLR> response) {
+                            if (response.isSuccessful()){
 
-                            Map<String, Object> user = new HashMap<>();
-                            user.put("uid", authResult.getUser().getUid());
-                            user.put("name",name);
-                            user.put("apellidoP", apellidoP);
-                            user.put("apellidoM", apellidoM);
-                            user.put("email", email);
-                            //user.put("numControl", numControl);
-                            user.put("image", "default");
-                            user.put("type_account", "student");
-                            user.put("thumb_image", "default");
-                            user.put("device_token", FirebaseInstanceId.getInstance().getToken());
-                            user.put("created_at", System.currentTimeMillis());
+                                if (response.body().getStatus().equals("success")){
 
-
-                            firebaseFirestore.collection("Users").document(authResult.getUser().getUid()).set(user)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-
-                                            TastyToast.makeText(getApplicationContext(), "¡Se ha creado tu cuenta con exito!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-                                            SharedPreferences.Editor editor = sharedPref.edit();
-                                            editor.putString("type_account", "student");
-                                            editor.putString("email", email);
-                                            editor.putString("user_uid", authResult.getUser().getUid());
-                                            editor.apply();
-                                            new Constants().checkAndGoTo(RegisterActivity.this, "student");
-                                            loading.setVisibility(View.INVISIBLE);
-                                            loading.stop();
-                                        }
-                            });
+                                    TastyToast.makeText(getApplicationContext(), "¡Se ha creado tu cuenta con exito!", TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("type_account", "student");
+                                    editor.putString("email", email);
+                                    editor.putString("token", response.body().getToken());
+                                    editor.apply();
+                                    loading.setVisibility(View.INVISIBLE);
+                                    loading.stop();
+                                    new Constants().checkAndGoTo(RegisterActivity.this, "student");
 
 
+                                }else{
+                                    TastyToast.makeText(RegisterActivity.this, response.body().getMessage(), TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
+                                }
+
+
+                            }else{
+                                TastyToast.makeText(RegisterActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseDefaultLR> call, Throwable t) {
+                            TastyToast.makeText(RegisterActivity.this, "Oucrrio un error :(", TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
                         }
                     });
-
 
 
 

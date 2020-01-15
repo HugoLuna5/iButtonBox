@@ -152,6 +152,7 @@ public class GruposTeacherFragment extends Fragment {
                        Intent intent = new Intent(getActivity(), GroupActivity.class);
                        intent.putExtra("uid_group", group.getUid());
                        getActivity().startActivity(intent);
+                       getActivity().finish();
 
                     }
                 });

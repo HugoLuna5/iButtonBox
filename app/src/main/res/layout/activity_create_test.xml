@@ -90,6 +90,15 @@
                 android:layout_height="60dp"/>
 
 
+            <LinearLayout
+                android:id="@+id/containerOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+
 
             <LinearLayout
                 android:layout_below="@id/palette"

@@ -31,6 +31,7 @@ import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.Groups.GroupActivity;
 import lunainc.mx.com.ibuttonbox.UI.Teacher.CreateTestActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
 
 public class HomeGroupFragment extends Fragment {
@@ -122,8 +123,8 @@ public class HomeGroupFragment extends Fragment {
         btnAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent intent = new Intent(getActivity(), CreateTestActivity.class);
-                //getActivity().startActivity(intent);
+                new Constants().goToNextActivity(getActivity(), new CreateTestActivity());
+
             }
         });
 

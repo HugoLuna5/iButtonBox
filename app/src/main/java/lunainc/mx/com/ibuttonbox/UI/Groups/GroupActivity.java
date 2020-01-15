@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +23,9 @@ import butterknife.ButterKnife;
 import lunainc.mx.com.ibuttonbox.Adapter.GroupPagerAdapter;
 import lunainc.mx.com.ibuttonbox.Adapter.MyPagerAdapter;
 import lunainc.mx.com.ibuttonbox.R;
+import lunainc.mx.com.ibuttonbox.UI.Student.StudentHomeActivity;
+import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
+import lunainc.mx.com.ibuttonbox.Utils.Constants;
 
 public class GroupActivity extends AppCompatActivity {
 
@@ -36,7 +41,7 @@ public class GroupActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String user_uid;
     private String group_uid;
-
+    private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +61,9 @@ public class GroupActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user_uid = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
-
+        Context context = getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
 
     }
 
@@ -122,7 +129,19 @@ public class GroupActivity extends AppCompatActivity {
 
         if (id == android.R.id.home) {
             // handle close button click here
-            finish();
+            String typeAccount = sharedPref.getString(("type_account"), "noLogged");
+
+            if (!typeAccount.equals("noLogged")) {
+
+                if (typeAccount.equals("teacher")) {
+                    new Constants().goToNextActivity(GroupActivity.this, new TeacherHomeActivity());
+
+                }else{
+                    new Constants().goToNextActivity(GroupActivity.this, new StudentHomeActivity());
+
+                }
+
+            }
 
             return true;
         }
@@ -132,8 +151,20 @@ public class GroupActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        //super.onBackPressed();
+        String typeAccount = sharedPref.getString(("type_account"), "noLogged");
+
+        if (!typeAccount.equals("noLogged")) {
+
+            if (typeAccount.equals("teacher")) {
+                new Constants().goToNextActivity(GroupActivity.this, new TeacherHomeActivity());
+
+            }else{
+                new Constants().goToNextActivity(GroupActivity.this, new StudentHomeActivity());
+
+            }
+
+        }
     }
 
 

@@ -96,7 +96,7 @@ public class CreateTestActivity extends AppCompatActivity {
     }
 
     private void setValuesSpinner() {
-        spinner.setItems("Verdadero/ Falso", "Opcion multiple", "Publicacion", "Texto", "Digitos");
+        spinner.setItems("Verdadero/ Falso", "Opcion multiple");
         spinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
