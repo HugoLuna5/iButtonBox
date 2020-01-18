@@ -48,7 +48,7 @@ public class User {
 
     @SerializedName("status")
     @Expose
-    private String success;
+    private String status;
 
     @SerializedName("message")
     @Expose
@@ -62,7 +62,7 @@ public class User {
     public User() {
     }
 
-    public User(String uid, String nombre, String apellidoP, String apellidoM, String numControl, String correo, String image, String thumb_image, String device_token, String type_account, String created_at, String success, String message, String token) {
+    public User(String uid, String nombre, String apellidoP, String apellidoM, String numControl, String correo, String image, String thumb_image, String device_token, String type_account, String created_at, String status, String message, String token) {
         this.uid = uid;
         this.nombre = nombre;
         this.apellidoP = apellidoP;
@@ -74,7 +74,7 @@ public class User {
         this.device_token = device_token;
         this.type_account = type_account;
         this.created_at = created_at;
-        this.success = success;
+        this.status = status;
         this.message = message;
         this.token = token;
     }
@@ -167,12 +167,12 @@ public class User {
         this.created_at = created_at;
     }
 
-    public String getSuccess() {
-        return success;
+    public String getStatus() {
+        return status;
     }
 
-    public void setSuccess(String success) {
-        this.success = success;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getMessage() {
@@ -206,7 +206,7 @@ public class User {
                 ", device_token='" + device_token + '\'' +
                 ", type_account='" + type_account + '\'' +
                 ", created_at='" + created_at + '\'' +
-                ", success='" + success + '\'' +
+                ", status='" + status + '\'' +
                 ", message='" + message + '\'' +
                 ", token='" + token + '\'' +
                 '}';

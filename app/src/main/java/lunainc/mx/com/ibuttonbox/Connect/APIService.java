@@ -1,6 +1,8 @@
 package lunainc.mx.com.ibuttonbox.Connect;
 
 
+import lunainc.mx.com.ibuttonbox.Model.Group;
+import lunainc.mx.com.ibuttonbox.Model.Member;
 import lunainc.mx.com.ibuttonbox.Model.ResponseDefaultLR;
 import lunainc.mx.com.ibuttonbox.Model.User;
 import okhttp3.RequestBody;
@@ -23,6 +25,25 @@ public interface APIService {
 
     @POST("api/v1/login")
     Call<ResponseDefaultLR> loginUser(@Body RequestBody body);
+
+    @POST("api/v1/logout")
+    Call<ResponseDefaultLR> logoutUser(@Header("Accept") String accept, @Header("Authorization") String Auth);
+
+    /**
+     * Routes teachers
+     */
+
+
+    @POST("api/v1/create/group")
+    Call<ResponseDefaultLR> createGroup(@Header("Accept") String accept, @Header("Authorization") String Auth, @Body RequestBody body);
+
+    @POST("api/v1/my/groups/teacher")
+    Call<Group> myGroupsTeacher(@Header("Accept") String accept, @Header("Authorization") String Auth);
+
+
+    @POST("api/v1/members/group")
+    Call<Member> membersGroups(@Header("Accept") String accept, @Header("Authorization") String Auth, @Body RequestBody body);
+
 
 
     /**

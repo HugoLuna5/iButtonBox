@@ -95,7 +95,7 @@ public class HomeTeacherFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        loadData();
+       // loadData();
     }
 
     public void loadData(){

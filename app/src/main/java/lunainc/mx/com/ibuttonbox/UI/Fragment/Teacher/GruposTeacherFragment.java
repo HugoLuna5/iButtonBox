@@ -1,12 +1,15 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment.Teacher;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -21,19 +24,30 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.sdsmdg.tastytoast.TastyToast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Adapter.GroupAdapter;
+import lunainc.mx.com.ibuttonbox.Connect.APIService;
+import lunainc.mx.com.ibuttonbox.Connect.ApiUtils;
 import lunainc.mx.com.ibuttonbox.Holder.GroupHolder;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
 import lunainc.mx.com.ibuttonbox.Model.Group;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.Groups.CreateGroupActivity;
 import lunainc.mx.com.ibuttonbox.UI.Groups.GroupActivity;
+import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class GruposTeacherFragment extends Fragment {
+public class GruposTeacherFragment extends Fragment implements GroupAdapter.ItemClickListener {
 
 
 
@@ -50,7 +64,11 @@ public class GruposTeacherFragment extends Fragment {
 
     private FirebaseAuth auth;
     private String uid_user;
-
+    private APIService mAPIService;
+    private SharedPreferences sharedPref;
+    private String token =  "";
+    private GroupAdapter groupAdapter;
+    private  ArrayList<Group> groups;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +82,6 @@ public class GruposTeacherFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         initVars();
-        loadData();
         events();
 
 
@@ -78,6 +95,14 @@ public class GruposTeacherFragment extends Fragment {
         firebaseFirestore = FirebaseFirestore.getInstance();
         firestoreGroup = FirebaseFirestore.getInstance();
         uid_user = auth.getCurrentUser().getUid();
+        Context context = getActivity().getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
+
+        mAPIService = ApiUtils.getAPIService();
+        token = sharedPref.getString(("token"), "noLogged");
+
+        groups = loadData();
 
 
         LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(getActivity());
@@ -86,6 +111,21 @@ public class GruposTeacherFragment extends Fragment {
         //linearLayoutManager.findFirstVisibleItemPosition();
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        groupAdapter = new GroupAdapter(getActivity(), groups);
+        groupAdapter.notifyDataSetChanged();
+        groupAdapter.setClickListener(this);
+
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.i("tag", "This'll run 800 milliseconds later");
+                        recyclerView.setAdapter(groupAdapter);
+                    }
+                },
+                800);
+
     }
 
     public void events(){
@@ -104,80 +144,59 @@ public class GruposTeacherFragment extends Fragment {
 
 
 
-    public void loadData(){
-        Query query = firebaseFirestore.collection("Groups").whereEqualTo("uid_creator", uid_user)
-                .orderBy("created_at", Query.Direction.DESCENDING).limit(50);
+    public ArrayList<Group> loadData(){
+         ArrayList<Group> groups = new ArrayList<Group>();
 
-        FirestoreRecyclerOptions<Group> recyclerOptions = new FirestoreRecyclerOptions.Builder<Group>().
-                setQuery(query, Group.class)
-                .build();
-
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Group, GroupHolder>(recyclerOptions) {
+        String completeToken = "Bearer "+token;
+        mAPIService.myGroupsTeacher("Accept", completeToken).enqueue(new Callback<Group>() {
             @Override
-            protected void onBindViewHolder(final GroupHolder holder, int i, Group group) {
+            public void onResponse(Call<Group> call, Response<Group> response) {
+
+                if (response.isSuccessful()){
+
+                    if (response.body().getStatusResponse().equals("success")){
 
 
-                holder.name.setText(group.getName());
-                holder.groupName.setText(group.getDesc());
-                String color = "#"+group.getColor();
-                Log.e("Color", color);
-                holder.statusView.setBackgroundColor(Color.parseColor(color));
+                        if (response.body().getGroups().size() > 0){
+                            for (int i = 0; i < response.body().getGroups().size(); i++) {
+                                Group group = response.body().getGroups().get(i);
+                                groups.add(group);
+                            }
 
-                firebaseFirestore.collection("Members").whereEqualTo("uid_group", group.getUid())
-                        .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot snapshots) {
-                        int members = snapshots.getDocumentChanges().size();
-                        holder.numMembers.setText(members+" miembro(s)");
+                        }
+
+                    }else{
+                        TastyToast.makeText(getActivity(), response.body().getMessage(),TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
                     }
-                });
 
-
-
-                GetTimeAgo getTimeAgo = new GetTimeAgo();
-
-                String lastSeenTime = getTimeAgo.getTimeAgo(group.getCreated_at(), getActivity());
-
-                if (lastSeenTime != null) {
-                    holder.time.setText(lastSeenTime);
-                } else {
-                    holder.time.setText("Hace un momento ");
+                }else{
+                    TastyToast.makeText(getActivity(), "Ocurrio un error al conectarse al servidor",TastyToast.LENGTH_LONG, TastyToast.ERROR);
                 }
 
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                       Intent intent = new Intent(getActivity(), GroupActivity.class);
-                       intent.putExtra("uid_group", group.getUid());
-                       getActivity().startActivity(intent);
-                       getActivity().finish();
-
-                    }
-                });
-
-
-
             }
-
 
             @Override
-            public GroupHolder onCreateViewHolder(ViewGroup group, int i) {
-                View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.item_group, group, false);
+            public void onFailure(Call<Group> call, Throwable t) {
+                TastyToast.makeText(getActivity(), t.getMessage(),TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
-                return new GroupHolder(view);
             }
-        };
+        });
 
 
-        adapter.startListening();
-        adapter.notifyDataSetChanged();
-        recyclerView.setAdapter(adapter);
-
+       return groups;
 
     }
 
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Intent intent = new Intent(getActivity(), GroupActivity.class);
+        intent.putExtra("id_group", groups.get(position).getUid());
+        intent.putExtra("name", groups.get(position).getName());
+        intent.putExtra("color", groups.get(position).getColor());
+        getActivity().startActivity(intent);
+        getActivity().finish();
+
+    }
 }

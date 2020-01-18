@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +16,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.sdsmdg.tastytoast.TastyToast;
 import com.thebluealliance.spectrum.SpectrumPalette;
 
 import java.util.HashMap;
@@ -22,10 +26,18 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import lunainc.mx.com.ibuttonbox.Connect.APIService;
+import lunainc.mx.com.ibuttonbox.Connect.ApiUtils;
+import lunainc.mx.com.ibuttonbox.Model.ResponseDefaultLR;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.UI.PerfilActivity;
 import lunainc.mx.com.ibuttonbox.UI.Teacher.TeacherHomeActivity;
 import lunainc.mx.com.ibuttonbox.Utils.Constants;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CreateGroupActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener {
 
@@ -51,6 +63,10 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
     private FirebaseAuth auth;
     private String uid_user;
 
+    private APIService mAPIService;
+    private SharedPreferences sharedPref;
+    private String token =  "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +85,13 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
         auth = FirebaseAuth.getInstance();
         uid_user = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
+
+        Context context = this.getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
+
+        mAPIService = ApiUtils.getAPIService();
+        token = sharedPref.getString(("token"), "noLogged");
 
     }
 
@@ -107,25 +130,47 @@ public class CreateGroupActivity extends AppCompatActivity implements SpectrumPa
                     mProgrees.show();
                     String key = firebaseFirestore.collection("Groups").document().getId().toString();
 
-                    Map<String, Object> group = new HashMap<>();
-                    group.put("color", colorFin);
-                    group.put("created_at", System.currentTimeMillis());
-                    group.put("desc", desc);
-                    group.put("name", name);
-                    group.put("status", true);
-                    group.put("uid", key);
-                    group.put("code", key.substring(0,6));
-                    group.put("uid_creator", uid_user);
+
+                    String completeToken = "Bearer "+token;
+
+                    RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("color", colorFin)
+                            .addFormDataPart("name", name)
+                            .addFormDataPart("desc", desc)
+                            .addFormDataPart("status", "1")
+                            .addFormDataPart("code", key.substring(0,6))
+                            .build();
 
 
-                    firebaseFirestore.collection("Groups").document(key).set(group)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
+                    mAPIService.createGroup("Accept", completeToken, requestBody).enqueue(new Callback<ResponseDefaultLR>() {
+                        @Override
+                        public void onResponse(Call<ResponseDefaultLR> call, Response<ResponseDefaultLR> response) {
+
+                            if (response.isSuccessful()){
+
+                                if (response.body().getStatus().equals("success")){
+                                    TastyToast.makeText(CreateGroupActivity.this,  response.body().getMessage(),TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                                     mProgrees.dismiss();
                                     goTo();
+                                }else{
+                                    TastyToast.makeText(CreateGroupActivity.this,  response.body().getMessage(),TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
                                 }
-                            });
+
+                            }else{
+                                TastyToast.makeText(CreateGroupActivity.this, "Ocurrio un error al conectarse al servidor",TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseDefaultLR> call, Throwable t) {
+                            TastyToast.makeText(CreateGroupActivity.this, "Ocurrio un error al conectarse al servidor",TastyToast.LENGTH_LONG, TastyToast.ERROR);
+
+                        }
+                    });
 
                 }
 

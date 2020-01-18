@@ -1,6 +1,9 @@
 package lunainc.mx.com.ibuttonbox.UI.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,15 +23,28 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.sdsmdg.tastytoast.TastyToast;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lunainc.mx.com.ibuttonbox.Adapter.GroupAdapter;
+import lunainc.mx.com.ibuttonbox.Adapter.MemberAdapter;
+import lunainc.mx.com.ibuttonbox.Connect.APIService;
+import lunainc.mx.com.ibuttonbox.Connect.ApiUtils;
 import lunainc.mx.com.ibuttonbox.Holder.MemberHolder;
 import lunainc.mx.com.ibuttonbox.Holder.TestHolder;
+import lunainc.mx.com.ibuttonbox.Model.Group;
 import lunainc.mx.com.ibuttonbox.Model.Member;
 import lunainc.mx.com.ibuttonbox.Model.Test;
 import lunainc.mx.com.ibuttonbox.R;
 import lunainc.mx.com.ibuttonbox.Utils.GetTimeAgo;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MiembrosFragment extends Fragment {
 
@@ -43,6 +59,12 @@ public class MiembrosFragment extends Fragment {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth auth;
     private String uid_user;
+
+    private APIService mAPIService;
+    private SharedPreferences sharedPref;
+    private String token =  "";
+    private MemberAdapter memberAdapter;
+    private ArrayList<Member> members;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,71 +100,92 @@ public class MiembrosFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         uid_user = auth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
+
+        Context context = getActivity().getApplicationContext();
+        sharedPref = context.getSharedPreferences(
+                "credentials", Context.MODE_PRIVATE);
+
+        mAPIService = ApiUtils.getAPIService();
+        token = sharedPref.getString(("token"), "noLogged");
+
+        members = loadData();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         //linearLayoutManager.setReverseLayout(true);
         //linearLayoutManager.setStackFromEnd(true);
         //linearLayoutManager.findFirstVisibleItemPosition();
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+
+        memberAdapter = new MemberAdapter(getActivity(), members);
+        memberAdapter.notifyDataSetChanged();
+        //memberAdapter.setClickListener(getActivity());
+
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.i("tag", "This'll run 800 milliseconds later");
+                        recyclerView.setAdapter(memberAdapter);
+                    }
+                },
+                800);
+
         btnAction.setVisibility(View.GONE);
     }
 
 
-    public void loadData() {
+    public ArrayList<Member> loadData() {
+        ArrayList<Member> members = new ArrayList<Member>();
+        String completeToken = "Bearer "+token;
         String data = getArguments().getString("parameter");
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("id_group", data)
 
-        Query query = firebaseFirestore.collection("Members").whereEqualTo("uid_group", data)
-                .orderBy("join_at", Query.Direction.DESCENDING);
-
-
-        FirestoreRecyclerOptions<Member> recyclerOptions = new FirestoreRecyclerOptions.Builder<Member>().
-                setQuery(query, Member.class)
                 .build();
 
-
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Member, MemberHolder>(recyclerOptions) {
+        mAPIService.membersGroups("Accept", completeToken, requestBody).enqueue(new Callback<Member>() {
             @Override
-            protected void onBindViewHolder(final MemberHolder holder, int i, Member member) {
+            public void onResponse(Call<Member> call, Response<Member> response) {
+
+                if (response.isSuccessful()){
+
+                    if(response.body().getStatus().equals("success")){
+
+                        if (response.body().getMembers().size() > 0){
+
+                            for (int i = 0; i < response.body().getMembers().size(); i++) {
+
+                                Member member = response.body().getMembers().get(i);
+                                members.add(member);
 
 
-                firebaseFirestore.collection("Users").document(member.getUid_user())
-                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String fullName = documentSnapshot.getString("name") + " " +documentSnapshot.getString("apellidoP") +" "+documentSnapshot.getString("apellidoM");
-                        holder.name.setText(fullName);
+                            }
 
-                        String image = documentSnapshot.getString("image");
-
-                        if (!image.equals("default")){
-                            Glide.with(getActivity()).load(image).into(holder.image);
                         }
 
+                    }else{
+                        TastyToast.makeText(getActivity(), response.body().getMessage(),TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
                     }
-                });
 
+                }else {
+                    TastyToast.makeText(getActivity(), "Ocurrio un error al conectarse al servidor",TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
-
-
+                }
 
             }
 
             @Override
-            public MemberHolder onCreateViewHolder(ViewGroup group, int i) {
-                View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.item_members, group, false);
+            public void onFailure(Call<Member> call, Throwable t) {
+                TastyToast.makeText(getActivity(), t.getMessage(),TastyToast.LENGTH_LONG, TastyToast.ERROR);
 
-                return new MemberHolder(view);
             }
-        };
+        });
 
-
-        adapter.startListening();
-        adapter.notifyDataSetChanged();
-        recyclerView.setAdapter(adapter);
-
-
+        return members;
     }
 
 

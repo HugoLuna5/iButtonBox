@@ -70,20 +70,11 @@ public class IntroActivity extends AppCompatActivity {
 
     public void validateSession() {
 
-        /*
-        if (auth.getCurrentUser() != null) {
-            user_uid = auth.getCurrentUser().getUid();
+        String typeAcc = sharedPref.getString(("type_account"), "noLogged");
 
-
-            String typeAcc = sharedPref.getString(("type_account"), "noLogged");
-
-            if (!typeAcc.equals("noLogged")){
-                new Constants().checkAndGoTo(IntroActivity.this, typeAcc);
-            }
-
-
+        if (!typeAcc.equals("noLogged") && !typeAcc.isEmpty() && !typeAcc.equals("")){
+            new Constants().checkAndGoTo(IntroActivity.this, typeAcc);
         }
-         */
 
     }
 

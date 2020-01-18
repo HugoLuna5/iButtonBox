@@ -125,7 +125,7 @@ public class GroupsStudentFragment extends Fragment {
                      group.setDesc(documentSnapshot.getString("desc"));
                      group.setColor(documentSnapshot.getString("color"));
                      group.setUid(documentSnapshot.getString("uid"));
-                     group.setCreated_at(documentSnapshot.getLong("created_at"));
+                     //group.setCreated_at(documentSnapshot.getLong("created_at"));
 
 
                      holder.name.setText(group.getName());
@@ -147,13 +147,13 @@ public class GroupsStudentFragment extends Fragment {
 
                      GetTimeAgo getTimeAgo = new GetTimeAgo();
 
-                     String lastSeenTime = getTimeAgo.getTimeAgo(group.getCreated_at(), getActivity());
+                     //String lastSeenTime = getTimeAgo.getTimeAgo(group.getCreated_at(), getActivity());
 
-                     if (lastSeenTime != null) {
-                         holder.time.setText(lastSeenTime);
-                     } else {
+                     //if (lastSeenTime != null) {
+                     //    holder.time.setText(lastSeenTime);
+                     //} else {
                          holder.time.setText("Hace un momento ");
-                     }
+                   //  }
 
 
                      holder.itemView.setOnClickListener(new View.OnClickListener() {

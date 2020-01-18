@@ -41,6 +41,8 @@ public class GroupActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String user_uid;
     private String group_uid;
+    private String group_name;
+    private String group_color;
     private SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,9 @@ public class GroupActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        group_uid = getIntent().getExtras().getString("uid_group");
+        group_uid = getIntent().getExtras().getString("id_group");
+        group_name = getIntent().getExtras().getString("name");
+        group_color = getIntent().getExtras().getString("color");
 
         initVars();
         loadData();
@@ -71,41 +75,33 @@ public class GroupActivity extends AppCompatActivity {
 
     public void loadData(){
 
-        firebaseFirestore.collection("Groups").document(group_uid).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
 
-                        String groupName = documentSnapshot.getString("name");
-                        String groupColor = documentSnapshot.getString("color");
-                        String color = "#"+groupColor;
+        toolbar.setTitle(group_name);
+        String color = "#"+group_color;
+        toolbar.setBackgroundColor(Color.parseColor(color));
+        tabLayout.setBackgroundColor(Color.parseColor(color));
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
+        tabLayout.setTabTextColors(Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF"));
 
-                        toolbar.setTitle(groupName);
-                        toolbar.setBackgroundColor(Color.parseColor(color));
-                        tabLayout.setBackgroundColor(Color.parseColor(color));
-                        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
-                        tabLayout.setTabTextColors(Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF"));
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setNavigationBarColor(Color.parseColor(color));
+            getWindow().setStatusBarColor(Color.parseColor(color));
+        }
 
-                        if (Build.VERSION.SDK_INT >= 21) {
-                            getWindow().setNavigationBarColor(Color.parseColor(color));
-                            getWindow().setStatusBarColor(Color.parseColor(color));
-                        }
-
-                        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
 
 
 
-                        ActionBar actionBar =  getSupportActionBar();
-                        if (actionBar != null) {
-                            actionBar.setDisplayHomeAsUpEnabled(true);
-                            actionBar.setHomeButtonEnabled(true);
-                            actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
-                            actionBar.setTitle(groupName);
-                        }
+        ActionBar actionBar =  getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
+            actionBar.setTitle(group_name);
+        }
 
 
-                    }
-                });
+
 
 
 

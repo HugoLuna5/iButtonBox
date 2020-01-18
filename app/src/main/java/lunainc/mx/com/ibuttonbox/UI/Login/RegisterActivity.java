@@ -155,19 +155,23 @@ public class RegisterActivity extends AppCompatActivity {
 
                                 }else{
                                     TastyToast.makeText(RegisterActivity.this, response.body().getMessage(), TastyToast.LENGTH_LONG, TastyToast.ERROR);
-
+                                    loading.setVisibility(View.INVISIBLE);
+                                    loading.stop();
                                 }
 
 
                             }else{
                                 TastyToast.makeText(RegisterActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                                loading.setVisibility(View.INVISIBLE);
+                                loading.stop();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ResponseDefaultLR> call, Throwable t) {
                             TastyToast.makeText(RegisterActivity.this, "Oucrrio un error :(", TastyToast.LENGTH_LONG, TastyToast.ERROR);
-
+                            loading.setVisibility(View.INVISIBLE);
+                            loading.stop();
                         }
                     });
 

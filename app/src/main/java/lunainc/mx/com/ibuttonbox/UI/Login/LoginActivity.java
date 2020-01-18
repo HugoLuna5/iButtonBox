@@ -115,6 +115,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             }else{
                                 TastyToast.makeText(LoginActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                                loading.setVisibility(View.INVISIBLE);
+                                loading.stop();
                             }
 
                         }
@@ -122,18 +124,12 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(Call<ResponseDefaultLR> call, Throwable t) {
                             TastyToast.makeText(LoginActivity.this, "Oucrrio un error", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+                            loading.setVisibility(View.INVISIBLE);
+                            loading.stop();
                         }
                     });
 
-                    auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                        @Override
-                        public void onSuccess(AuthResult authResult) {
 
-
-
-
-                        }
-                    });
 
 
                 }else{
